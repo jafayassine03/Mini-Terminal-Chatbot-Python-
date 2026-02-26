@@ -1,74 +1,109 @@
-import json
-import os
+import random
 from datetime import datetime
 from colorama import init, Fore, Style
 
 init(autoreset=True)
 
-MEMORY_FILE = "memory.json"
-LOG_FILE = "chat_log.txt"
-
 
 class ChatBot:
     def __init__(self):
-        if os.path.exists(MEMORY_FILE):
-            with open(MEMORY_FILE, "r") as f:
-                self.memory = json.load(f)
-        else:
-            self.memory = {}
+        self.name = None
+        self.mood = "neutral"
 
-    def save_memory(self):
-        with open(MEMORY_FILE, "w") as f:
-            json.dump(self.memory, f, indent=4)
+        self.greetings = ["Hello!", "Hey there!", "Hi 👋", "What's up!"]
+        self.how_are_you_responses = [
+            "I'm doing great 😄",
+            "Feeling awesome today!",
+            "All good here!",
+        ]
 
-    def log(self, message):
-        with open(LOG_FILE, "a") as f:
-            f.write(f"{datetime.now()} - {message}\n")
+    def banner(self):
+       
+        print(Fore.YELLOW + "Simple Smart ChatBot")
+        print(Fore.YELLOW + "Type 'help' for commands.\n")
 
     def get_time(self):
-        return datetime.now().strftime("%H:%M")
+        return datetime.now().strftime("Current time: %H:%M")
 
     def get_date(self):
-        return datetime.now().strftime("%Y-%m-%d")
+        return datetime.now().strftime("Today's date: %Y-%m-%d")
 
-    def greet(self):
-        print(Fore.GREEN + "Bot: Hello! 👋\n")
-        print(Fore.YELLOW + "Bot: Type 'help' to see what I can do.\n")
+    def tell_joke(self):
+        jokes = [
+            "Why do programmers prefer dark mode? Because light attracts bugs 🐛",
+            "Why did Python go to therapy? Too many issues.",
+            "I would tell you a UDP joke… but you might not get it."
+        ]
+        return random.choice(jokes)
 
-    def chat(self):
-        self.greet()
+    def detect_mood(self, text):
+        if any(word in text for word in ["sad", "upset", "tired"]):
+            self.mood = "sad"
+            return "I'm here for you. Want to talk about it?"
+        if any(word in text for word in ["happy", "great", "good"]):
+            self.mood = "happy"
+            return "I love that energy 😄"
+        return None
+
+    def help_menu(self):
+        return (
+            "Commands:\n"
+            "- hi / hello\n"
+            "- my name is <name>\n"
+            "- how are you\n"
+            "- time\n"
+            "- date\n"
+            "- joke\n"
+            "- exit"
+        )
+
+    def run(self):
+        self.banner()
+
         while True:
-            user_input = input(Fore.CYAN + "You: " + Style.RESET_ALL).lower().strip()
-            self.log(f"You: {user_input}")
+            user_input = input(Fore.CYAN + "You: " + Style.RESET_ALL).strip().lower()
+
+            if user_input in ["exit", "quit", "bye"]:
+                print(Fore.MAGENTA + "Bot: Goodbye 👋")
+                break
 
             if user_input in ["hi", "hello", "hey"]:
-                response = "Hello!"
-            elif "how are you" in user_input:
-                response = "I'm doing great! Thanks for asking 😊"
-            elif "time" in user_input:
-                response = f"Current time is {self.get_time()}"
-            elif "date" in user_input:
-                response = f"Today's date is {self.get_date()}"
-            elif user_input == "help":
-                response = (
-                    "I can respond to:\n"
-                    "- greetings (hi, hello, hey)\n"
-                    "- how are you\n"
-                    "- time / date\n"
-                    "- exit / quit / bye"
-                )
-            elif user_input in ["exit", "quit", "bye"]:
-                response = "Goodbye! See you soon 👋"
-                print(Fore.MAGENTA + f"Bot: {response}")
-                self.log(f"Bot: {response}")
-                break
-            else:
-                response = "Hmm… I don't understand that yet 🤔"
+                print(Fore.MAGENTA + f"Bot: {random.choice(self.greetings)}")
+                continue
 
-            print(Fore.MAGENTA + f"Bot: {response}")
-            self.log(f"Bot: {response}")
+            if user_input.startswith("my name is"):
+                self.name = user_input.replace("my name is", "").strip().title()
+                print(Fore.MAGENTA + f"Bot: Nice to meet you, {self.name}!")
+                continue
+
+            if "how are you" in user_input:
+                print(Fore.MAGENTA + f"Bot: {random.choice(self.how_are_you_responses)}")
+                continue
+
+            if user_input == "time":
+                print(Fore.MAGENTA + f"Bot: {self.get_time()}")
+                continue
+
+            if user_input == "date":
+                print(Fore.MAGENTA + f"Bot: {self.get_date()}")
+                continue
+
+            if user_input == "joke":
+                print(Fore.MAGENTA + f"Bot: {self.tell_joke()}")
+                continue
+
+            if user_input == "help":
+                print(Fore.MAGENTA + f"Bot: {self.help_menu()}")
+                continue
+
+            mood_response = self.detect_mood(user_input)
+            if mood_response:
+                print(Fore.MAGENTA + f"Bot: {mood_response}")
+                continue
+
+            print(Fore.MAGENTA + "Bot: Hmm… I’m still learning 🤔")
 
 
 if __name__ == "__main__":
     bot = ChatBot()
-    bot.chat()
+    bot.run()
