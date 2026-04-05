@@ -9,16 +9,16 @@ class ChatBot:
     def __init__(self):
         self.name = None
         self.mood = "neutral"
+        self.history = []  #conversation history
 
-        self.greetings = ["Hello!", "Hey there!", "Hi 👋", "What's up!"]
+        self.greetings = ["Hello!", "Hey there!", "Hii", "What's up!"]
         self.how_are_you_responses = [
-            "I'm doing great 😄",
+            "I'm doing great ",
             "Feeling awesome today!",
             "All good here!",
         ]
 
     def banner(self):
-       
         print(Fore.YELLOW + "Simple Smart ChatBot")
         print(Fore.YELLOW + "Type 'help' for commands.\n")
 
@@ -45,6 +45,18 @@ class ChatBot:
             return "I love that energy 😄"
         return None
 
+    def calculate(self, expression):
+        try:
+            result = eval(expression)  # simple calculator
+            return f"Result: {result}"
+        except:
+            return "Invalid calculation ❌"
+
+    def show_history(self):
+        if not self.history:
+            return "No history yet."
+        return "\n".join(self.history[-5:])  # last 5 messages
+
     def help_menu(self):
         return (
             "Commands:\n"
@@ -54,6 +66,8 @@ class ChatBot:
             "- time\n"
             "- date\n"
             "- joke\n"
+            "- calculate <math>\n"
+            "- history\n"
             "- exit"
         )
 
@@ -63,45 +77,76 @@ class ChatBot:
         while True:
             user_input = input(Fore.CYAN + "You: " + Style.RESET_ALL).strip().lower()
 
+            # store user input
+            self.history.append(f"You: {user_input}")
+
             if user_input in ["exit", "quit", "bye"]:
                 print(Fore.MAGENTA + "Bot: Goodbye 👋")
                 break
 
             if user_input in ["hi", "hello", "hey"]:
-                print(Fore.MAGENTA + f"Bot: {random.choice(self.greetings)}")
+                response = random.choice(self.greetings)
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
                 continue
 
             if user_input.startswith("my name is"):
                 self.name = user_input.replace("my name is", "").strip().title()
-                print(Fore.MAGENTA + f"Bot: Nice to meet you, {self.name}!")
+                response = f"Nice to meet you, {self.name}!"
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
                 continue
 
             if "how are you" in user_input:
-                print(Fore.MAGENTA + f"Bot: {random.choice(self.how_are_you_responses)}")
+                response = random.choice(self.how_are_you_responses)
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
                 continue
 
             if user_input == "time":
-                print(Fore.MAGENTA + f"Bot: {self.get_time()}")
+                response = self.get_time()
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
                 continue
 
             if user_input == "date":
-                print(Fore.MAGENTA + f"Bot: {self.get_date()}")
+                response = self.get_date()
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
                 continue
 
             if user_input == "joke":
-                print(Fore.MAGENTA + f"Bot: {self.tell_joke()}")
+                response = self.tell_joke()
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
+                continue
+
+            if user_input.startswith("calculate"):
+                expression = user_input.replace("calculate", "").strip()
+                response = self.calculate(expression)
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
+                continue
+
+            if user_input == "history":
+                response = self.show_history()
+                print(Fore.MAGENTA + f"Bot:\n{response}")
                 continue
 
             if user_input == "help":
-                print(Fore.MAGENTA + f"Bot: {self.help_menu()}")
+                response = self.help_menu()
+                print(Fore.MAGENTA + f"Bot: {response}")
                 continue
 
             mood_response = self.detect_mood(user_input)
             if mood_response:
                 print(Fore.MAGENTA + f"Bot: {mood_response}")
+                self.history.append(f"Bot: {mood_response}")
                 continue
 
-            print(Fore.MAGENTA + "Bot: Hmm… I’m still learning 🤔")
+            response = "Hmm… I’m still learning 🤔"
+            print(Fore.MAGENTA + f"Bot: {response}")
+            self.history.append(f"Bot: {response}")
 
 
 if __name__ == "__main__":
