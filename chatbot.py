@@ -1,4 +1,6 @@
 import random
+import threading
+import time
 from datetime import datetime
 from colorama import init, Fore, Style
 
@@ -9,7 +11,7 @@ class ChatBot:
     def __init__(self):
         self.name = None
         self.mood = "neutral"
-        self.history = []  #conversation history
+        self.history = []  # conversation history
 
         self.greetings = ["Hello!", "Hey there!", "Hii", "What's up!"]
         self.how_are_you_responses = [
@@ -47,7 +49,7 @@ class ChatBot:
 
     def calculate(self, expression):
         try:
-            result = eval(expression)  # simple calculator
+            result = eval(expression)
             return f"Result: {result}"
         except:
             return "Invalid calculation ❌"
@@ -55,7 +57,7 @@ class ChatBot:
     def show_history(self):
         if not self.history:
             return "No history yet."
-        return "\n".join(self.history[-5:])  # last 5 messages
+        return "\n".join(self.history[-5:])
 
     def help_menu(self):
         return (
@@ -67,9 +69,35 @@ class ChatBot:
             "- date\n"
             "- joke\n"
             "- calculate <math>\n"
+            "- remind me to <task> in <seconds/minutes>\n"
             "- history\n"
             "- exit"
         )
+
+    # 🔔 Reminder Feature
+    def set_reminder(self, text):
+        try:
+            parts = text.split("in")
+            message = parts[0].replace("remind me to", "").strip()
+            time_part = parts[1].strip()
+
+            if "second" in time_part:
+                seconds = int(time_part.split()[0])
+            elif "minute" in time_part:
+                seconds = int(time_part.split()[0]) * 60
+            else:
+                return "Invalid time format."
+
+            threading.Thread(target=self.reminder_thread, args=(message, seconds)).start()
+
+            return f"I will remind you to '{message}' in {time_part} ⏰"
+
+        except:
+            return "Couldn't set reminder. Try: remind me to <task> in <time>"
+
+    def reminder_thread(self, message, seconds):
+        time.sleep(seconds)
+        print(Fore.GREEN + f"\n⏰ Reminder: {message}\n")
 
     def run(self):
         self.banner()
@@ -77,7 +105,6 @@ class ChatBot:
         while True:
             user_input = input(Fore.CYAN + "You: " + Style.RESET_ALL).strip().lower()
 
-            # store user input
             self.history.append(f"You: {user_input}")
 
             if user_input in ["exit", "quit", "bye"]:
@@ -124,6 +151,13 @@ class ChatBot:
             if user_input.startswith("calculate"):
                 expression = user_input.replace("calculate", "").strip()
                 response = self.calculate(expression)
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
+                continue
+
+            # 🔔 Reminder command
+            if user_input.startswith("remind me to"):
+                response = self.set_reminder(user_input)
                 print(Fore.MAGENTA + f"Bot: {response}")
                 self.history.append(f"Bot: {response}")
                 continue
