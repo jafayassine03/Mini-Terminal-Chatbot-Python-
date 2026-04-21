@@ -20,6 +20,14 @@ class ChatBot:
             "All good here!",
         ]
 
+        self.quotes = [
+            "Believe you can and you're halfway there.",
+            "Keep going, you’re doing amazing!",
+            "Happiness depends upon ourselves.",
+            "Do one thing every day that scares you.",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts."
+        ]
+
     def banner(self):
         print(Fore.YELLOW + "Simple Smart ChatBot")
         print(Fore.YELLOW + "Type 'help' for commands.\n")
@@ -37,6 +45,9 @@ class ChatBot:
             "I would tell you a UDP joke… but you might not get it."
         ]
         return random.choice(jokes)
+
+    def tell_quote(self):
+        return random.choice(self.quotes)
 
     def detect_mood(self, text):
         if any(word in text for word in ["sad", "upset", "tired"]):
@@ -68,13 +79,13 @@ class ChatBot:
             "- time\n"
             "- date\n"
             "- joke\n"
+            "- quote\n"
             "- calculate <math>\n"
             "- remind me to <task> in <seconds/minutes>\n"
             "- history\n"
             "- exit"
         )
 
-    # 🔔 Reminder Feature
     def set_reminder(self, text):
         try:
             parts = text.split("in")
@@ -148,6 +159,12 @@ class ChatBot:
                 self.history.append(f"Bot: {response}")
                 continue
 
+            if user_input == "quote":
+                response = self.tell_quote()
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
+                continue
+
             if user_input.startswith("calculate"):
                 expression = user_input.replace("calculate", "").strip()
                 response = self.calculate(expression)
@@ -155,7 +172,6 @@ class ChatBot:
                 self.history.append(f"Bot: {response}")
                 continue
 
-            # 🔔 Reminder command
             if user_input.startswith("remind me to"):
                 response = self.set_reminder(user_input)
                 print(Fore.MAGENTA + f"Bot: {response}")
