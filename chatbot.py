@@ -28,6 +28,15 @@ class ChatBot:
             "Success is not final, failure is not fatal: it is the courage to continue that counts."
         ]
 
+        self.weather_conditions = [
+            "Sunny ☀️",
+            "Cloudy ☁️",
+            "Rainy 🌧️",
+            "Stormy ⛈️",
+            "Windy 🌬️",
+            "Snowy ❄️"
+        ]
+
     def banner(self):
         print(Fore.YELLOW + "Simple Smart ChatBot")
         print(Fore.YELLOW + "Type 'help' for commands.\n")
@@ -48,6 +57,11 @@ class ChatBot:
 
     def tell_quote(self):
         return random.choice(self.quotes)
+
+    def get_weather(self):
+        condition = random.choice(self.weather_conditions)
+        temp = random.randint(15, 35)  # playful random temperature
+        return f"Today's weather looks {condition} with around {temp}°C."
 
     def detect_mood(self, text):
         if any(word in text for word in ["sad", "upset", "tired"]):
@@ -80,6 +94,7 @@ class ChatBot:
             "- date\n"
             "- joke\n"
             "- quote\n"
+            "- weather\n"
             "- calculate <math>\n"
             "- remind me to <task> in <seconds/minutes>\n"
             "- history\n"
@@ -161,6 +176,12 @@ class ChatBot:
 
             if user_input == "quote":
                 response = self.tell_quote()
+                print(Fore.MAGENTA + f"Bot: {response}")
+                self.history.append(f"Bot: {response}")
+                continue
+
+            if user_input == "weather":
+                response = self.get_weather()
                 print(Fore.MAGENTA + f"Bot: {response}")
                 self.history.append(f"Bot: {response}")
                 continue
